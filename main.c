@@ -23,7 +23,7 @@ int main()
 
   int* (*u) = (*fun)(a);
 
-  printf("%d", u(b));
+  printf("%d", (*u)(b));
 
   return 0;
 }
