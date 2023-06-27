@@ -1,0 +1,16 @@
+_____________________________________________
+name: IDAT      size: 36        pos: 83        
+Crf: 68 a0 c5 2f 
+Data:
+18  57  63  0   82  ff  1d  c   a2  ff  ff  7f  62  f8  6f  ef 
+71  e6  3f  3   88  0   b   ac  3b  f9  ff  ff  ff  ff  ff  1  
+b   c3  13  3d  
+
+_____________________________________________
+name: IDAT      size: 36        pos: 83        
+Crf: 68 a0 c5 2f 
+Data:
+18  57  63  0   82  ff  1d  c   a2  ff  ff  7f  62  f8  6f  ef 
+71  e6  3f  3   88  0   b   ac  3b  f9  ff  ff  ff  ff  ff  1  
+b   c3  13  3d  
+

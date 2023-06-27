@@ -7,6 +7,10 @@ int GetReal(int x, int p) {
   if (x >= 0) return x;
   return (int)pow(2, p) + x;
 }
+int GetBack(int x, int p) {
+  if (x < (int)pow(2, p - 1)) return x;
+  return x - (int)pow(2, p);
+}
 int GetIntData(char* x, int l) {
   int _x = 0;
   for (int i = 0; i < l;i++) _x += (int)pow(16, (l - i - 1) * 2) * GetReal(x[i], 8);
@@ -21,8 +25,9 @@ char* GetStrData(char* x, int l) {
 
 #if __INCLUDE_LEVEL__ == 0
 int main() {
-  char hex[] = "0123456789ABCDEF";
-  printf("%d", strchr(hex, 'A') - hex);
+  // char hex[] = "0123456789ABCDEF";
+  // printf("%d", strchr(hex, 'A') - hex);
+  GetBack(0, 0);
 }
 #else
 #pragma once

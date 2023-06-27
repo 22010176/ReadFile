@@ -23,7 +23,7 @@ void _ChPrint(Chunk* obj, int prda) {
   printf("\n");
   if (!prda || !obj->size) return;
   printf("Data:\n");
-  for (int i = 0; i < obj->size;i++) printf("%*x%c", -3, GetReal(obj->data[i], 8), a(i + 1, 16));
+  for (int i = 0; i < obj->size;i++) printf("%*x%c", -3, GetReal(obj->data[i], 8), AddIndent(i + 1, 16));
   printf("\n\n");
 }
 
@@ -42,7 +42,7 @@ void _ChFPrint(Chunk* obj, FILE* f, int prda) {
   fprintf(f, "\n");
   if (!prda || !obj->size) return;
   fprintf(f, "Data:\n");
-  for (int i = 0; i < obj->size;i++) fprintf(f, "%*x%c", -3, GetReal(obj->data[i], 8), a(i + 1, 16));
+  for (int i = 0; i < obj->size;i++) fprintf(f, "%*x%c", -3, GetReal(obj->data[i], 8), AddIndent(i + 1, 16));
   fprintf(f, "\n\n");
 }
 char* _ChSetCrf(Chunk* obj, char* crf) { return strncpy(obj->crf, crf, 4); }

@@ -8,6 +8,11 @@
     "initializer_list": "cpp",
     "type_traits": "cpp",
     "xstring": "cpp",
-    "xutility": "cpp"
-  }
+    "xutility": "cpp",
+    "number.h": "c",
+    "number.c": "cpp",
+    "file.h": "c",
+    "stdlib.h": "c"
+  },
+  "cmake.configureOnOpen": false
 }

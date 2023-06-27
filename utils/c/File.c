@@ -23,7 +23,7 @@ char* ReadData(FILE* f, int pos, int len) {
   fread(temp, 1, len, f);
   return strcpy((char*)malloc(len), temp);
 }
-char a(int i, int n) {
+char AddIndent(int i, int n) {
   if (i % n) return ' ';
   return '\n';
 }
@@ -39,7 +39,7 @@ void WriteFile(FILE* _src, FILE* _dest, int indent, int n) {
   char* data;
   do { data = (char*)malloc(size * 2 + 1); } while (!data);
   fread(data, 1, size, _src);
-  for (int i = 0; i < size;i++) fprintf(_dest, "%*x%c", indent, GetReal(data[i], 8), a(i + 1, n));
+  for (int i = 0; i < size;i++) fprintf(_dest, "%*x%c", indent, GetReal(data[i], 8), AddIndent(i + 1, n));
 }
 
 #if __INCLUDE_LEVEL__ == 0
