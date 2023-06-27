@@ -12,7 +12,8 @@
     "number.h": "c",
     "number.c": "cpp",
     "file.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "string.h": "c"
   },
   "cmake.configureOnOpen": false
 }

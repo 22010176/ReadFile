@@ -17,7 +17,7 @@ Chunk* ReadChunk(FILE* t, int pos) {
   fread(data, 1, _s, t), fread(crf, 1, 4, t);
   Chunk* x = _Chunk(_s, pos, name);
   x->SetData(x, data, _s), x->SetCrf(x, crf);
-  // x->Print(x, 0);
+
   return x;
 }
 Chunk** GetAllChunk(FILE* t, int n) {
@@ -38,6 +38,7 @@ Chunk** GetAllChunk(FILE* t, int n) {
   do { x = (Chunk**)realloc(x, i * sizeof(Chunk*)); } while (!x);
   return x;
 }
+
 Chunk** GetIdat(Chunk** d) {
   int len = GetLen((void**)d);
   Chunk** res;
@@ -57,27 +58,11 @@ int  GetIdatSize(Chunk** d) {
   }
   return x;
 }
-#if __INCLUDE_LEVEL__ == 0
-int main() {
-  char a[] = "C:/Users/ducmi/Downloads/New folder/data/png/sample.png";
-  char b[] = "Ext.txt";
-  FILE* t = fopen(a, "rb"), * o = fopen(b, "a+");
-  Chunk** _a = GetAllChunk(t, 1000000);
-  Chunk** idat = GetIdat(_a);
-
-  int size = GetIdatSize(idat), len = GetLen((void**)idat), j = 0;
-  char* data, * output;
-  int output_size = size * 3 + 1;
-  do { data = (char*)malloc(size + 1); } while (!data);
+char* InflateData(char* data, int size) {
+  char* output;
+  int output_size = size * 2 + 1;
+  printf("Hello2");
   do { output = (char*)malloc(output_size); } while (!output);
-  for (int i = 0;i < len;i++) {
-    Chunk* x = idat[i];
-    x->FPrint(x, o, 1);
-    memcpy(data + j, x->data, x->size);
-    j += x->size;
-  }
-  data[size] = '\0';
-
   z_stream  out;
   out.zalloc = Z_NULL;
   out.zfree = Z_NULL;
@@ -92,14 +77,56 @@ int main() {
   inflate(&out, Z_NO_FLUSH);
   inflateEnd(&out);
 
-  for (int i = 0; i < output_size;i++) {
-    printf("%3d%c", output[i], AddIndent(i + 1, 16));
+  return output;
+}
+char* PackedData(Chunk** data, int size) {
+  char* _data;
+  int j = 0;
+  do { _data = (char*)malloc(size + 1); } while (!_data);
+  for (int i = 0;i < size;i++) {
+    if (strcmp(data[i]->name, "IDAT")) continue;
+    Chunk* x = data[i];
+    memcpy(_data + j, x->data, x->size);
+    j += x->size;
   }
+  _data[size] = '\0';
+  return _data;
+}
+char* DeCompress(Chunk** data) {
+  Chunk** idat = GetIdat(data);
+  int  size = GetLen((void**)idat), j = 0;
 
+  char* _data = PackedData(idat, size);
+  char* output = InflateData(_data, size);
+
+  free(idat);
+  free(_data);
+  return output;
+}
+void WritePNGData(FILE* _dest, Chunk** data) {
+  int len = GetLen((void**)data);
+  printf("%d", len);
+  for (int i = 0; i < len;i++) data[i]->FPrint(data[i], _dest, 1);
+}
+int* GetPNGScale(Chunk* IHDR) {
+  int size[2] = { GetIntData(IHDR->data, 4),GetIntData(IHDR->data + 4, 4) };
+  return (int*)memcpy(malloc(2 * sizeof(int)), size, 2 * sizeof(int));
+
+}
+#if __INCLUDE_LEVEL__ == 0
+int main() {
+  char a[] = "C:/Users/ducmi/Downloads/New folder/data/png/sample.png";
+  char b[] = "Ext.txt";
+  FILE* t = fopen(a, "rb");
+  FILE* o = fopen(b, "a+");
+  Chunk** _a = GetAllChunk(t, 1000);
+  WritePNGData(o, _a);
+  int* PNGScale = GetPNGScale(_a[1]);
+  char* output = DeCompress(_a);
+
+  printf("Hello");
   for (int i = 0; _a[i] != (Chunk*)-1;i++) free(_a[i]);
   free(_a);
-  free(data);
-  free(idat);
 }
 #else
 #pragma once
