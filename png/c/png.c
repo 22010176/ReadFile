@@ -3,6 +3,7 @@
 #include "string.h"
 #include "ctype.h"
 
+#include "../zlib.h"
 #include "../Chunk.h"
 #include "../../utils/File.h"
 #include "../../utils/Number.h"
@@ -26,6 +27,7 @@ Chunk** GetAllChunk(FILE* t, int n) {
   do { x = (Chunk**)malloc(clen * sizeof(Chunk*)); } while (!x);
   x[i++] = _Chunk(8, 0, (char*)"header");
   x[0]->SetData(x[0], ReadData(t, 0, 8), x[0]->size);
+  x[0]->SetCrf(x[0], (char*)"0000");
   for (int j = ftell(t);getc(t) != EOF && i < n;j = ftell(t)) {
     x[i++] = ReadChunk(t, j);
     if (i < clen) continue;
@@ -39,9 +41,12 @@ Chunk** GetAllChunk(FILE* t, int n) {
 
 #if __INCLUDE_LEVEL__ == 0
 int main() {
-  char a[] = "C:/Users/ducmi/Downloads/New folder/data/png/sample2.png";
+  char a[] = "C:/Users/ducmi/Downloads/New folder/data/png/sample.png";
+  char b[] = "Ext.txt";
   FILE* t = fopen(a, "rb");
+  // FILE* o = fopen(b, "w+");
   Chunk** _a = GetAllChunk(t, 1000000);
+
 
   free(_a);
 }
