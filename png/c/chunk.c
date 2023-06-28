@@ -63,12 +63,12 @@ Chunk* _Chunk(int size, int pos, char* name) {
 #if __INCLUDE_LEVEL__ == 0
 int main() {
   char a[] = "C:/Users/ducmi/Downloads/New folder/data/png/sample2.png";
-  // FILE* f = fopen(a, "rb");
+  FILE* f = fopen(a, "wb");
   Chunk* _a = _Chunk(10, 5, (char*)"Hello");
   _a->SetData(_a, (char*)"abcd6669", 30);
   _a->SetCrf(_a, (char*)"1234");
   _a->SetData(_a, (char*)"012345678911234567890", 141);
-  _a->Print(_a, 1);
+  _a->FPrint(_a, f, 1);
   _a->Free(_a);
 }
 #else

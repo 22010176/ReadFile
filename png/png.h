@@ -1,2 +1,2 @@
-#include "c/png.c"
+#include "c/png/ReadPNG.c"
 #pragma once

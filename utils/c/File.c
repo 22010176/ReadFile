@@ -18,10 +18,10 @@ int GetSize(FILE* f) {
   return size;
 }
 char* ReadData(FILE* f, int pos, int len) {
-  char temp[len];
+  char* temp = (char*)malloc(len);
   fseek(f, pos, SEEK_SET);
   fread(temp, 1, len, f);
-  return strcpy((char*)malloc(len), temp);
+  return temp;
 }
 char AddIndent(int i, int n) {
   if (i % n) return ' ';
