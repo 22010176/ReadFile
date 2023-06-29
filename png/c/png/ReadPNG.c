@@ -118,19 +118,25 @@ void WritePNGData(FILE* _dest, Chunk** data) {
 }
 
 void FPrintPNGData(FILE* _dest, char* output, int* size) {
-  int indent = size[0] * size[1] * 4 + 1;
-  for (int i = 0; i < size[0] * size[1] * 4 + size[1];i++) {
-    fprintf(_dest, "%5d%c", GetReal(output[i], 8), AddIndent(i + 1, indent));
+  int indent = size[0] * 4 + 1, len = calcDataLen(size);
+  for (int i = 0; i < len;i++) fprintf(_dest, "%2x%c", GetReal(output[i], 8), AddIndent(i + 1, indent));
+}
+char** _1Dto2D(char* arr, int l, int* size) {
+  char** res = (char**)malloc(size[1]);
+  for (int i = 0; i < size[0];i++) {
+
   }
 }
 #if __INCLUDE_LEVEL__ == 0
 int main() {
-  char a[] = "C:/Users/ducmi/Downloads/New folder/data/png/Bzv9q.png";
+  char a[] = "C:/Users/ducmi/Downloads/New folder/data/png/sample.png";
+
   FILE* t = fopen(a, "rb");
   Chunk** _a = GetAllChunk(t);
   char* e = Decompress(_a);
-
+  // FPrintPNGData(fopen("a.txt", "wb"), e, GetPNGScale(_a[1]));
   for (int i = 0; _a[i] != (Chunk*)-1;i++) _a[i]->Free(_a[i]);
+
   free(_a);
   free(e);
 }

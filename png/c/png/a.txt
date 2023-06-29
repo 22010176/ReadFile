@@ -1,0 +1,4 @@
+ 0  0  0  0 ff ff ff ff ff ff c9  e ff ff ff ff ff b9 7a 57 ff
+ 0  0 a2 e8 ff ff ff ff ff ed 1c 24 ff  0 a2 e8 ff  0 a2 e8 ff
+ 0 ff ff ff ff b9 7a 57 ff ff ff ff ff  0 a2 e8 ff 3f 48 cc ff
+ 0 3f 48 cc ff c3 c3 c3 ff c3 c3 c3 ff  0 a2 e8 ff ff ff ff ff

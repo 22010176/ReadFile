@@ -9,9 +9,10 @@
 
 typedef struct _png PNG;
 struct _png {
-  int width, height, bit_depth, colour_type, compression_method, filter_method, interlance_method;
+  size_t width, height, bit_depth, colour_type, compression_method, filter_method, interlance_method;
   Chunk** critical, ancillary;
-
+  size_t idat_size, idat_num;
+  int** Data;
 };
 
 
