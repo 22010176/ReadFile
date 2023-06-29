@@ -8,14 +8,6 @@
 #include "../../../utils/File.h"
 #include "../../../utils/Number.h"
 
-typedef struct color {
-  int red, green, blue, alpha;
-} Color;
-typedef struct image IMG;
-struct image {
-  int width, height;
-  Color** data;
-};
 
 Chunk* ReadChunk(FILE* t, int pos) {
   char size[4], name[5], crf[5];
@@ -29,7 +21,7 @@ Chunk* ReadChunk(FILE* t, int pos) {
 
   return x;
 }
-Chunk** GetAllChunk(FILE* t, int n) {
+Chunk** GetAllChunk(FILE* t) {
   int clen = 4;
   int fsize = GetSize(t), i = 0;
   Chunk** x;
@@ -37,7 +29,7 @@ Chunk** GetAllChunk(FILE* t, int n) {
   x[i++] = _Chunk(8, 0, (char*)"header");
   x[0]->SetData(x[0], ReadData(t, 0, 8), x[0]->size);
   x[0]->SetCrf(x[0], (char*)"0000");
-  for (int j = ftell(t);getc(t) != EOF && i < n;j = ftell(t)) {
+  for (int j = ftell(t);getc(t) != EOF;j = ftell(t)) {
     x[i++] = ReadChunk(t, j);
     if (i < clen) continue;
     clen *= 2;
@@ -133,24 +125,10 @@ void FPrintPNGData(FILE* _dest, char* output, int* size) {
 }
 #if __INCLUDE_LEVEL__ == 0
 int main() {
-  char a[] = "C:/Users/ducmi/Downloads/New folder/data/png/sample.png";
-  char b[] = "Ext.txt";
-  char c[] = "Ext2.txt";
+  char a[] = "C:/Users/ducmi/Downloads/New folder/data/png/Bzv9q.png";
   FILE* t = fopen(a, "rb");
-  // FILE* o = fopen(b, "wb");
-  // FILE* ff = fopen(c, "wb+");
-
-  Chunk** _a = GetAllChunk(t, 2000000000);
-  // WritePNGData(ff, _a);
-  _a[1]->Print(_a[1], 1);
-
-  int* size = GetPNGScale(_a[1]);
+  Chunk** _a = GetAllChunk(t);
   char* e = Decompress(_a);
-
-  int indent = size[0] * 4 + 1;
-  for (int i = 0; i < calcDataLen(size);i++) {
-    printf("%4d%c", GetReal(e[i], 8), AddIndent(i + 1, indent));
-  }
 
   for (int i = 0; _a[i] != (Chunk*)-1;i++) _a[i]->Free(_a[i]);
   free(_a);
