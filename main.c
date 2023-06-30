@@ -5,10 +5,6 @@
 #include "zlib/zlib.h"
 
 typedef struct { char* data;  int len; } Data;
-typedef struct {
-  int size;
-  char name[5], crf[5], * data;
-} Chunk;
 int GetReal(int x, int p) { // visual only
   if (x >= 0) return x;
   return (int)pow(2, p) + x;
@@ -76,24 +72,13 @@ int GetInterlac(FILE* t) { // 28
   int d = GetINT(w, 1);
   free(w); return d;
 }
-Chunk* _Chunk(FILE* t, int pos) {
-  Chunk* res = (Chunk*)malloc(sizeof(Chunk));
-  char* s = ReadData(t, pos, 4);
-  res->size = GetINT(s, 4);
-  free(s);
-  s = ReadData(t, pos + 4, 4);
-  strcpy(res->name, s);
-  free(s);
-
-  return res;
-}
 Data* GetData(FILE* t) {
   Data* x = (Data*)malloc(sizeof(Data));
   x->len = 0, x->data = (char*)calloc(x->len + 1, 1);
   fseek(t, 8, SEEK_SET);
   int cur = ftell(t), i = 0;
-  char* _t;
   while (getc(t) != EOF) {
+    char* _t, * data, * _x;
     _t = ReadData(t, cur, 4);
     int size = GetINT(_t, 4);
     free(_t);
@@ -110,11 +95,10 @@ Data* GetData(FILE* t) {
       cur += size + 4;
       continue;
     }
-
-    char* data = ReadData(t, cur, size);
-    do { x->data = realloc(data, x->len + size + 1); } while (!x->data);
-    memcpy(x->data + x->len, data, size);
-    x->len += size;
+    data = ReadData(t, cur, size);
+    do { _x = realloc(x->data, x->len + size + 1); } while (!_x);
+    memcpy(_x + x->len, data, size);
+    x->len += size, x->data = _x;
     cur += 4 + size;
     free(_t);
   }
@@ -199,6 +183,10 @@ Data* Defilter(Data* x, FILE* t) {
 void freeData(Data* x) {
   free(x->data);free(x);
 }
+char* AddIndent(int i, int time, char* a, char* b) {
+  if (i % time) return a;
+  return b;
+}
 void PrintPng(FILE* t) {
   int w = GetWidth(t), h = GetHeight(t), ct = GetColorType(t);
   int bd = GetColorByte(ct);
@@ -206,16 +194,19 @@ void PrintPng(FILE* t) {
   Data* uncom = GetData(t);
   Data* com = Decompress(uncom, t);
   Data* unfil = Defilter(com, t);
+
   for (int i = 0; i < h;i++) {
-    for (int j = 0; j < rl;j++) printf("%5d ", GetReal(unfil->data[i * rl + j], 8));
+    printf("%d| ", GetReal(unfil->data[i * rl], 8));
+    for (int j = 1; j < rl;j++) printf("%2x%s", GetReal(unfil->data[i * rl + j], 8), AddIndent(j, bd, "", "  "));
     printf("\n");
   }
+
   freeData(uncom);
   freeData(com);
   freeData(unfil);
 }
 int main() {
-  FILE* t = fopen("dd.png", "rb");
+  FILE* t = fopen("ddd.png", "rb");
   PrintPng(t);
   fclose(t);
 }
