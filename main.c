@@ -191,6 +191,7 @@ void PrintPng(FILE* t) {
   int w = GetWidth(t), h = GetHeight(t), ct = GetColorType(t);
   int bd = GetColorByte(ct);
   int rl = w * bd + 1;
+
   Data* uncom = GetData(t);
   Data* com = Decompress(uncom, t);
   Data* unfil = Defilter(com, t);
