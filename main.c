@@ -5,6 +5,12 @@
 #include <stdlib.h>
 #include "zlib/zlib.h"
 
+typedef struct _PNG PNG;
+struct _PNG {
+  int width, height, bitdepth, colortype, compression, filter, interlance;
+  char* data;
+};
+
 int GetReal(int x) {
   if (x >= 0) return x;
   return (int)pow(2, 8) + x;
@@ -89,6 +95,8 @@ char* Defilter() {}
 void PrintPNG() {}
 void WritePNG() {}
 void Testing() {}
+
+
 
 int main() {
 
