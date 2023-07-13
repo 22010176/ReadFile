@@ -4,7 +4,9 @@
 #include "stdlib.h"
 #include "math.h"
 #include "ctype.h"
+
 #include "PNG.c"
+#include "utils/utils.h"
 
 #define GREYSCALE "@MBHENR#KWXDFPQASUZbdehx*8Gm&04LOVYkpq5Tagns69owz$CIu23Jcfry%1v7l+it[] {}?j|()=~!-/<>\"^_';,:`. "
 
@@ -17,11 +19,6 @@ struct _screen {
   Pixel*** screen;
   char* result;
 };
-void* _m(size_t _size) {
-  void* mem;
-  do mem = malloc(_size); while (!mem);
-  return mem;
-}
 float rgb2gc(RGBA* color) { return (0.299 * color->r + 0.587 * color->g + 0.114 * color->b); }
 
 Pixel* CrPixel(int intent) { return memcpy(_m(sizeof(Pixel)), &(Pixel) { intent }, sizeof(Pixel)); }
@@ -47,22 +44,26 @@ char* Render(Screen* data) {
   a[index++] = '\0';
   return Resize(a, index);
 }
+Pixel** FormatPixel(FILE* a) {
 
+}
+void*** Create2dArr(int x, int y) {
+
+}
 int main() {
-  FILE* f = fopen("ae.png", "rb");
+  FILE* f = fopen("a.png", "rb");
   FILE* o = fopen("b.bin", "w+");
-  // printf("Hello");
   WriteFilePNG(f, o);
 
   int w = GetWidth(f), h = GetHeight(f);
   fseek(o, 0, SEEK_SET);
-  // Pixel** data = _m(w * h * sizeof(Pixel*));
   RGBA* _data = _m(sizeof(RGBA));
-  while (getc(o) != EOF) {
+  int i = 0;
+  do {
     fread(_data, sizeof(RGBA), 1, o);
-    printf("%5d %5d %5d %5d\n", _data->r % 256, _data->g % 256, _data->b % 256, _data->a % 256);
-  }
-
+    // printf("%5d %5d %5d %5d\n", _data->r, _data->g, _data->b, _data->a);
+    printf("%d.\n", ++i);
+  } while (!feof(o));
 
   fclose(f); fclose(o);
 
