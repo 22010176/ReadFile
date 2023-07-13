@@ -13,16 +13,21 @@ struct _Scanline { unsigned int filterType; unsigned char* data; };
 typedef struct _RGBA RGBA;
 struct _RGBA { unsigned char r, g, b, a; };
 
-typedef struct _PNG PNG;
-struct _PNG { unsigned int width, height, bitdepth, colortype, compression, filter, interlance; RGBA** data; };
+typedef struct _IMG IMG;
+struct _IMG { unsigned int width, height; RGBA** data; }; // Do not change
 
 typedef struct _Chunk Chunk;
 struct _Chunk { unsigned int size; unsigned char* crc, * data, name[5]; };
 
 typedef struct _Data Data;
-struct _Data { size_t len; char* data; };
+struct _Data { size_t len; unsigned char* data; };
 
-RGBA* CrRGBA(char r, char g, char b, char a) { return memcpy(malloc(sizeof(RGBA)), &(RGBA) { r, g, b, a }, sizeof(RGBA)); }
+RGBA* CrRGBA(char r, char g, char b, char a) { return memcpy(_m(sizeof(RGBA)), &(RGBA) { r, g, b, a }, sizeof(RGBA)); }
+Data* CrData(size_t len, char* data) { return memcpy(_m(sizeof(Data)), &(Data) { len, data }, sizeof(Data)); }
+
+void FreeChunk(Chunk* x) { free(x->crc); free(x->data); free(x); }
+void FreeData(Data* dat) { free(dat->data); free(dat); }
+
 int GetWidth(FILE* t) {
   char* w = ReadData(t, 16, 4);
   int e = GetInt(w, 4);
@@ -87,8 +92,7 @@ Chunk* GetChunk(FILE* t, size_t pos) {
 
   return a;
 }
-void FreeChunk(Chunk* x) { free(x->crc); free(x->data); free(x); }
-Data* CrData(size_t len, char* data) { return memcpy(_m(sizeof(Data)), &(Data) { len, data }, sizeof(Data)); }
+
 Data* GetIDAT(FILE* t) {
   size_t cur = 8, i = 0;
   fseek(t, cur, SEEK_SET);
@@ -129,7 +133,7 @@ char* Inflate(char* x, size_t len1, size_t len2) {
 
   return data;
 }
-void FreeData(Data* dat) { free(dat->data); free(dat); }
+
 Data* Decompress(FILE* t) {
   Data* idat = GetIDAT(t); size_t len = CalcDataLen(t) * 2 + 1;
   Data* res = CrData(len, Inflate(idat->data, idat->len, len));
@@ -186,36 +190,65 @@ RGBA** PackedData(FILE* f) {
   char* data = GetPNGData(f);
   int w = GetWidth(f), h = GetHeight(f), ct = ColorType(GetColorType(f)), sl = CalcScanline(f);
   RGBA** _data = _m(w * h * sizeof(RGBA*));
-  for (int i = 0, c = 1; i < w * h;i++) {
-    if (i && i % w == 0) c++;
-    _data[i] = _rgba2rgb((RGBA*)(data + i * ct + c), &(RGBA) { 255, 255, 255, 255 });
+  for (int i = 0, c = 0; i < w * h;i++) {
+    if (i % w == 0) c++;
+    // _data[i] = _rgba2rgb((RGBA*)(data + i * ct + c), &(RGBA) { 255, 255, 255, 255 });
+    _data[i] = memcpy(_m(sizeof(RGBA)), data + i * ct + c, sizeof(RGBA));
   }
   free(data);
   return _data;
 }
-void PrintPNG(FILE* f, char* data) {
+void PrintPNG(FILE* f) {
   int sl = CalcScanline(f);
+  char* data = GetPNGData(f);
   for (int i = 0; i < GetHeight(f);i++) {
     for (int j = 1; j < sl;j++) printf("%5d ", GetReal(data[i * sl + j]));
     printf("\n");
   }
   printf("\n");
 }
-void WriteFilePNG(FILE* _src, FILE* _dst) {}
+void WriteFilePNG(FILE* _src, char _dst[]) {
+  FILE* f = fopen(_dst, "w+");
+  fseek(f, 0, SEEK_SET);
+
+  RGBA** data = PackedData(_src);
+  int w = GetWidth(_src), h = GetHeight(_src);
+  fwrite((int[]) { w, h }, sizeof(int), 2, f);
+  for (int i = 0; i < w * h;i++) {
+    fwrite(data[i], sizeof(RGBA), 1, f);
+    free(data[i]);
+  }
+  free(data);
+  fclose(f);
+}
 void PrRGBA(RGBA* a) { printf("%5d %5d %5d %5d ", a->r, a->g, a->b, a->a); }
+IMG* ReadPNGData(char path[]) {
+  FILE* f = fopen(path, "rb"); fseek(f, 0, SEEK_SET);
+
+  int s[2]; fread(s, sizeof(int), 2, f);
+  int size = s[0] * s[1];
+
+  RGBA** data = _m(size * (sizeof(RGBA*)));
+  for (int i = 0; i < size;i++) {
+    data[i] = _m(sizeof(RGBA));
+    fread(data[i], sizeof(RGBA), 1, f);
+  };
+
+  return memcpy(_m(sizeof(IMG)), &(IMG) { s[0], s[1], data }, sizeof(IMG));
+}
 #if __INCLUDE_LEVEL__ == 0
 int main() {
   FILE* f = fopen("ae.png", "rb");
-  // FILE* o = fopen("b.bin", "w+");
-  RGBA** data = PackedData(f);
-  int w = GetWidth(f), h = GetHeight(f);
-  PrintPNG(f, GetPNGData(f));
-  for (int i = 0; i < h * w;i++) {
-    PrRGBA(data[i]);
-    if ((i + 1) % w == 0)printf("\n");
+  char de[] = "b.dat";
+  WriteFilePNG(f, de);
+  IMG* a = ReadPNGData(de);
+
+  PrintPNG(f);
+  for (int i = 0; i < a->width * a->height;i++) {
+    PrRGBA(a->data[i]);
+    printf("\n");
   }
-  // // WriteFilePNG(f, o);
-  // printf("Success");
+  printf("Success");
 }
 #else
 #pragma once
