@@ -1,6 +1,16 @@
 #include "stdlib.h"
 #include "stdio.h"
 
+typedef struct _Data Data;
+struct _Data { size_t len; unsigned char* data; };
+
+typedef struct _RGBA RGBA;
+struct _RGBA { unsigned char r, g, b, a; };
+
+typedef struct _IMG IMG;
+struct _IMG { unsigned int width, height; RGBA** data; }; // Do not change
+
+
 void* _m(size_t _size) {
   void* mem; do mem = malloc(_size); while (!mem);
   return mem;

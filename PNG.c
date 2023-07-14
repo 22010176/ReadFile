@@ -10,17 +10,10 @@
 typedef struct _Scanline Scanline;
 struct _Scanline { unsigned int filterType; unsigned char* data; };
 
-typedef struct _RGBA RGBA;
-struct _RGBA { unsigned char r, g, b, a; };
-
-typedef struct _IMG IMG;
-struct _IMG { unsigned int width, height; RGBA** data; }; // Do not change
-
 typedef struct _Chunk Chunk;
 struct _Chunk { unsigned int size; unsigned char* crc, * data, name[5]; };
 
-typedef struct _Data Data;
-struct _Data { size_t len; unsigned char* data; };
+
 
 RGBA* CrRGBA(char r, char g, char b, char a) { return memcpy(_m(sizeof(RGBA)), &(RGBA) { r, g, b, a }, sizeof(RGBA)); }
 Data* CrData(size_t len, char* data) { return memcpy(_m(sizeof(Data)), &(Data) { len, data }, sizeof(Data)); }
@@ -66,12 +59,12 @@ int GetInterlanceMethod(FILE* t) {
 
 int ColorType(int x) {
   switch (x) {
-  case 0:
-  case 3: return 1;
-  case 2: return 3;
-  case 4: return 2;
-  case 6: return 4;
-  default: return 0;
+  case 0:               // Greyscale
+  case 3: return 1;     // Indexed-colour
+  case 2: return 3;     // TrueColor
+  case 4: return 2;     // Greyscale with alpha
+  case 6: return 4;     // Truecolour with alpha
+  default: return 0;    // invalid
   }
 }
 
@@ -93,13 +86,14 @@ Chunk* GetChunk(FILE* t, size_t pos) {
   return a;
 }
 
-Data* GetIDAT(FILE* t) {
+Data* PackedIDAT(FILE* t) {
   size_t cur = 8, i = 0;
   fseek(t, cur, SEEK_SET);
   char* _data = _m(GetFileLen(t) + 1);
   Chunk* data;
   do {
     data = GetChunk(t, cur);
+    // printf("%s\n", data->name);
     cur += data->size + 12;
     if (strcmp(data->name, "IDAT")) {
       FreeChunk(data);
@@ -112,6 +106,7 @@ Data* GetIDAT(FILE* t) {
   _data[i++] = '\0';
   return CrData(i, Resize(_data, i));
 }
+
 int CalcScanline(FILE* t) { return GetWidth(t) * ColorType(GetColorType(t)) + 1; }
 int CalcDataLen(FILE* t) { return GetHeight(t) * CalcScanline(t); }
 char* Inflate(char* x, size_t len1, size_t len2) {
@@ -135,7 +130,7 @@ char* Inflate(char* x, size_t len1, size_t len2) {
 }
 
 Data* Decompress(FILE* t) {
-  Data* idat = GetIDAT(t); size_t len = CalcDataLen(t) * 2 + 1;
+  Data* idat = PackedIDAT(t); size_t len = CalcDataLen(t) * 2 + 1;
   Data* res = CrData(len, Inflate(idat->data, idat->len, len));
   FreeData(idat);
   return res;
@@ -221,7 +216,7 @@ void WriteFilePNG(FILE* _src, char _dst[]) {
   free(data);
   fclose(f);
 }
-void PrRGBA(RGBA* a) { printf("%5d %5d %5d %5d ", a->r, a->g, a->b, a->a); }
+void PrRGBA(RGBA* a) { printf("%5d %5d %5d %5d\n", a->r, a->g, a->b, a->a); }
 IMG* ReadPNGData(char path[]) {
   FILE* f = fopen(path, "rb"); fseek(f, 0, SEEK_SET);
 
