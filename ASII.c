@@ -5,7 +5,7 @@
 #include "math.h"
 #include "ctype.h"
 
-#include "PNG.c"
+#include "ReadPNG.c"
 #include "utils/utils.h"
 
 #define GREYSCALE "@MBHENR#KWXDFPQASUZbdehx*8Gm&04LOVYkpq5Tagns69owz$CIu23Jcfry%1v7l+it[]{}?j|()=~!-/<>\"^_';,:`. "
