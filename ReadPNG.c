@@ -3,6 +3,7 @@
 #include <string.h>
 #include <conio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "utils/utils.h"
 #include "zlib/zlib.h"
@@ -91,15 +92,13 @@ Data* PackedIDAT(FILE* t) {
   Chunk* data;
   do {
     data = GetChunk(t, cur);
-    // printf("%s\n", data->name);
     cur += data->size + 12;
     if (strcmp(data->name, "IDAT")) {
       FreeChunk(data);
       continue;
     }
     memcpy(_data + i, data->data, data->size);
-    i += data->size;
-    FreeChunk(data);
+    i += data->size; FreeChunk(data);
   } while (getc(t) != EOF);
   _data[i++] = '\0';
   return CrData(i, Resize(_data, i));
@@ -165,11 +164,9 @@ RGBA* _rgba2rgb(RGBA* _src, RGBA* _bg) {
   return CrRGBA(_e(alpha, _bg->r, _src->r), _e(alpha, _bg->g, _src->g), _e(alpha, _bg->b, _src->b), 255);
 }
 int CheckIndex(int x) { return x == -1 ? 0 : x; }
-char* GetPNGData(FILE* t) {
-  Data* x = Decompress(t);
-  int h = GetHeight(t), w = GetWidth(t), sl = CalcScanline(t), (*f)(int, int, int, int);
+char* GetNoInterlackedPNGData(Data* x, int w, int h, int sl) {
   char* _re = x->data, * dat = _m(x->len);
-  for (int i = 0, index; i < h;i++) {
+  for (int i = 0, (*f)(int, int, int, int), index; i < h;i++) {
     f = GetFilter(dat[i * sl] = _re[i * sl]);
     for (int j = 1; j < sl;j++) {
       index = i * sl + j;
@@ -179,6 +176,16 @@ char* GetPNGData(FILE* t) {
   FreeData(x);
   return dat;
 }
+char* GetInterlackedPNGData(Data* x, int w, int h, int sl) {
+
+} // In progress
+
+char* GetPNGData(FILE* t) {
+  Data* x = Decompress(t);
+  int h = GetHeight(t), w = GetWidth(t), sl = CalcScanline(t), (*f)(int, int, int, int);
+  return (GetInterlanceMethod(t) ? GetInterlackedPNGData : GetNoInterlackedPNGData)(x, w, h, sl);
+}
+RGBA** GetPLTEPNGData() {} // In progress
 RGBA** PackedData(FILE* f) {
   char* data = GetPNGData(f);
   int w = GetWidth(f), h = GetHeight(f), ct = ColorType(GetColorType(f)), sl = CalcScanline(f);
@@ -230,17 +237,8 @@ IMG* ReadPNGData(char path[]) {
 }
 #if __INCLUDE_LEVEL__ == 0
 int main() {
-  FILE* f = fopen("ae.png", "rb");
-  char de[] = "b.dat";
-  WriteFilePNG(f, de);
-  IMG* a = ReadPNGData(de);
-
-  PrintPNG(f);
-  for (int i = 0; i < a->width * a->height;i++) {
-    PrRGBA(a->data[i]);
-    printf("\n");
-  }
-  printf("Success");
+  // printf("%d", GetInterlanceMethod(fopen("imgs/png/test.png", "rb")));
+  printf("%d", strlen("1153249531234567890"));
 }
 #else
 #pragma once

@@ -16,11 +16,7 @@ typedef struct _pixel APixel;
 struct _pixel { int intent; }; // 0 -> 255
 
 typedef struct _screen AScreen;
-struct _screen {
-  int width, height, wr, hr;
-  APixel** screen;
-  char* path;
-};
+struct _screen { int width, height, wr, hr; APixel** screen; char* path; };
 float rgb2gc(RGBA* color) { return (int)(0.299 * color->r + 0.587 * color->g + 0.114 * color->b); }
 
 APixel* CrPixel(int intent) { return memcpy(_m(sizeof(APixel)), &(APixel) { intent }, sizeof(APixel)); }
@@ -36,16 +32,16 @@ APixel** Process(RGBA** data, int len) {
   return res;
 }
 int GetGrey(int intent, char* level) { return level[(int)(intent * (strlen(level) - 1) / 255)]; }
-char* Render(AScreen* data, char path[], int cut[]) {
+char* Render(AScreen* data, char path[]) {
   int w = data->width, h = data->height, wr = data->wr, hr = data->hr;
   FILE* ouput = fopen(path, "w+");
   APixel** sr = data->screen;
   char* res = _m(w * wr * h * hr + h * hr + 1); res[0] = '\0';
 
-  for (int i = cut[0]; i < h - cut[1];i++) {
+  for (int i = 0; i < h;i++) {
     char* line = _m(w * wr + 2); line[0] = '\0';
     int k = 0;
-    for (int j = cut[2]; j < w - cut[3];j++) {
+    for (int j = 0; j < w;j++) {
       char x = GetGrey(sr[i * w + j]->intent, GREYSCALE3);
       for (int l = 0;l < wr;l++) line[k++] = x;
     }
@@ -59,12 +55,12 @@ char* Render(AScreen* data, char path[], int cut[]) {
 AScreen* RenderASII(char path[], IMG* data, int wr, int hr) {
   AScreen a = { data->width,data->height,wr,hr };
   a.screen = Process(data->data, data->width * data->height);
-  a.path = Render(&a, path, (int[]) { 0, 0, 0, 0 });
+  a.path = Render(&a, path);
 
   return memcpy(_m(sizeof(a)), &a, sizeof(a));
 }
 int main() {
-  WriteFilePNG(fopen("imgs/png/ae.png", "rb"), "b.dat");
+  WriteFilePNG(fopen("imgs/png/dddd.png", "rb"), "b.dat");
   IMG* data = ReadPNGData("b.dat");
 
   int len = data->height * data->width;
