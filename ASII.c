@@ -60,7 +60,7 @@ AScreen* RenderASII(char path[], IMG* data, int wr, int hr) {
   return memcpy(_m(sizeof(a)), &a, sizeof(a));
 }
 int main() {
-  WriteFilePNG(fopen("imgs/png/dddd.png", "rb"), "b.dat");
+  WriteFilePNG(fopen("imgs/png/ad.png", "rb"), "b.dat");
   IMG* data = ReadPNGData("b.dat");
 
   int len = data->height * data->width;
