@@ -5,7 +5,7 @@ typedef struct _Data Data;
 struct _Data { size_t len; unsigned char* data; };
 
 typedef struct _RGBA RGBA;
-struct _RGBA { unsigned char r, g, b, a; };
+struct _RGBA { unsigned char r, g, b, a; }; // usigned char [4]
 
 typedef struct _IMG IMG;
 struct _IMG { unsigned int width, height; RGBA** data; }; // Do not change
