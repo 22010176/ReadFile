@@ -7,4 +7,6 @@
 #include "utils/File.c"
 #include "utils/utils.h"
 
-int main() {}
+int main() {
+    WriteFileData("ttf/a.ttf", "a.txt");
+}

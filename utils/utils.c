@@ -1,5 +1,6 @@
 #include "stdlib.h"
 #include "stdio.h"
+#include "math.h"
 
 typedef struct _Data Data;
 struct _Data { size_t len; unsigned char* data; };
